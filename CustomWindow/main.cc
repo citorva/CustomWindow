@@ -4,10 +4,10 @@
 
 #include "CustomWindow.hh"
 
-class MainWindow : public CustomWindow
+class MainWindow : public CustomWindow::CustomWindow
 {
 public:
-    MainWindow() : CustomWindow()
+    MainWindow() : CustomWindow::CustomWindow()
     {
         setFrameRemoved(true);
         hideSystemMenu();
