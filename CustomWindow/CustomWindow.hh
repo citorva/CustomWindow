@@ -1,4 +1,7 @@
-// Adaedra QDwm
+// CustomWindow
+// Copyright (C) 2018 Citorva
+//
+// Based on Adaedra QDwm
 // Copyright (C) 2011 Adaedra
 //
 // This program is free software: you can redistribute it and/or modify
