@@ -36,6 +36,8 @@
 #define CALCSIZE_USE_TITLEBAR   0x00000100
 #define CALCSIZE_DEFAULT        0x00000111
 
+namespace CustomWindow {
+
 enum Sizing {
     contentSizing,
     borderSizing,
@@ -129,4 +131,6 @@ private:
 #endif
 };
 
+}
+	
 #endif
