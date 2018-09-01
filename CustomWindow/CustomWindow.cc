@@ -34,6 +34,8 @@
     #define WM_DWMCOMPOSITIONCHANGED 0x031E
 #endif
 
+namespace CustomWindow {
+
 CustomWindow::CustomWindow(QWidget* parent, Qt::WindowFlags flags) : QWidget(parent, flags) {
 #ifdef Q_OS_WIN
     setAttribute(Qt::WA_TranslucentBackground, true);
@@ -563,5 +565,7 @@ bool CustomWindow::isCaption(int cx, int cy) const
     }
     return false;
 }
-
+   
 #endif
+    
+}
