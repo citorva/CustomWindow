@@ -1,21 +1,21 @@
 cmake_minimum_required(VERSION 3.6)
-project(CustomWindow-example)
+project(CustomWindow-thinkframe-example
 
 include_directories(${CMAKE_SOURCE_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/../CustomWindow)
+include_directories(${CMAKE_SOURCE_DIR}/../../CustomWindow)
 
 if(WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
     # 64bit
-    set (CMAKE_PREFIX_PATH "D:\\Qt\\5.11.0\\msvc2017_64\\")
+    set (CMAKE_PREFIX_PATH "D:\\Qt\\5.11.1\\msvc2017_64\\")
 elseif(WIN32)
-    set (CMAKE_PREFIX_PATH "D:\\Qt\\5.11.0\\msvc2015\\")
+    set (CMAKE_PREFIX_PATH "D:\\Qt\\5.11.1\\msvc2015\\")
 endif()
 
 set(
     SOURCE_FILES
     main.cc 
-    ../CustomWindow/CustomWindow.cc
-    ../CustomWindow/CustomWindow.hh
+    ../../CustomWindow/CustomWindow.cc
+    ../../CustomWindow/CustomWindow.hh
 )
 
 set(CMAKE_CXX_STANDARD 17)
@@ -25,7 +25,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5Widgets 5.8 REQUIRED)
 
 if (WIN32)
-    add_executable(CustomWindow-example WIN32 ${SOURCE_FILES} ${QRC_FILES})
+    add_executable(CustomWindow-thinkframe-example WIN32 ${SOURCE_FILES} ${QRC_FILES})
 
     # deploy
     get_target_property(QT5_QMAKE_EXECUTABLE Qt5::qmake IMPORTED_LOCATION)
@@ -54,4 +54,4 @@ else()
     set(EXAMPLE_LIBS Qt5::Widgets)
 endif()
 
-target_link_libraries(CustomWindow-example LINK_PUBLIC ${EXAMPLE_LIBS})
+target_link_libraries(CustomWindow-thinkframe-example LINK_PUBLIC ${EXAMPLE_LIBS})

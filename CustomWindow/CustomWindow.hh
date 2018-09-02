@@ -91,6 +91,7 @@ public:
 	static bool isThemeActivated(void);
 
     void declareCaption(const QWidget* widget);
+	void removeCaption(const QWidget* widget);
 
 signals:
 	void themeChanged(void);

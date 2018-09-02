@@ -549,6 +549,15 @@ void CustomWindow::declareCaption(const QWidget* widget)
     mCaptions.push_back(widget);
 }
 
+void CustomWindow::removeCaption(const QWidget* widget)
+{
+	for (int i = 0; i < mCaptions.size(); i++) {
+		if (mCaptions[i] == widget) {
+			mCaptions.erase(mCaptions.begin()+i);
+		}
+	}
+}
+
 bool CustomWindow::isCaption(int cx, int cy) const
 {
     for (const auto* widget : mCaptions) {
