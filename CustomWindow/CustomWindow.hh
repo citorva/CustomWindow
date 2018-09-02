@@ -31,10 +31,14 @@
     #include <vector>
 #endif
 
-#define CALCSIZE_USE_BORDER     0x00000001
-#define CALCSIZE_USE_MARGIN     0x00000010
-#define CALCSIZE_USE_TITLEBAR   0x00000100
-#define CALCSIZE_DEFAULT        0x00000111
+#if (QT_VERSION == QT_VERSION_CHECK(5, 11, 1))
+#error Qt bug for version 5.11.1. See https://bugreports.qt.io/browse/QTBUG-69074?jql=project%20%3D%20QTBUG%20AND%20text%20~%20nativeEvent%20AND%20affectedVersion%20%3D%205.11.1 for more information
+#endif
+
+#define CALCSIZE_USE_BORDER     0x0001
+#define CALCSIZE_USE_MARGIN     0x0002
+#define CALCSIZE_USE_TITLEBAR   0x0004
+#define CALCSIZE_DEFAULT        0x0007
 
 namespace CustomWindow {
 

@@ -551,14 +551,11 @@ void CustomWindow::declareCaption(const QWidget* widget)
 
 bool CustomWindow::isCaption(int cx, int cy) const
 {
-    int i = 0;
     for (const auto* widget : mCaptions) {
         int minX = widget->pos().x();
         int minY = widget->pos().y();
         int maxX = minX + widget->size().width();
         int maxY = minY + widget->size().height();
-
-        i++;
 
         if (minX <= cx && cx <= maxX && minY <= cy && cy <= maxY)
             return true;
