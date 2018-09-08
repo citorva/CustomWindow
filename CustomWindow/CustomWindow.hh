@@ -22,6 +22,7 @@
 
 #include <QWidget>
 #include <QStyle>
+#include <QMargins>
 
 #ifdef Q_OS_WIN
     #include <Windows.h>
@@ -56,6 +57,7 @@ class CustomWindow : public QWidget {
 	Q_PROPERTY(QMargins extraMargins READ extraMargins WRITE setExtraMargins)
 	Q_PROPERTY(int borderSize READ borderSize WRITE setBorderSize)
 	Q_PROPERTY(int titleBarSize READ titleBarSize WRITE setTitleBarSize)
+	Q_PROPERTY(int geometryFlags READ geometryFlags WRITE setGeometryFlags)
 #endif
 
 public:
@@ -64,20 +66,24 @@ public:
 #ifdef Q_OS_WIN
     void hideSystemMenu(void);
     void showSystemMenu(void);
-    bool haveSystemMenu(void) const;
+	void setSystemMenu(bool hide = false);
+	bool haveSystemMenu(void) const;
+	bool isGeometryFlagsActivated(int flag) const;
 
 	// Write
 	void setFrameRemoved(bool isRemoved);
 	void setExtraMargins(const QMargins& margins);
 	void setBorderSize(int size);
 	void setTitleBarSize(int size);
+	void setGeometryFlags(int flags);
 
 	// Read
 	bool isFrameRemoved(void) const;
 	QMargins extraMargins(void) const;
-    QRect clientGeometry(const int calcFlags = CALCSIZE_DEFAULT) const;
+    QRect clientGeometry(void) const;
 	int borderSize(void) const;
     int titleBarSize(void) const;
+	int geometryFlags(void) const;
 
     // Sizing
     void setSizing(Sizing method);
@@ -92,6 +98,8 @@ public:
 
     void declareCaption(const QWidget* widget);
 	void removeCaption(const QWidget* widget);
+
+	void setLayout(QLayout* layout);
 
 signals:
 	void themeChanged(void);
@@ -109,16 +117,15 @@ private:
     void updateFrame(HWND hWnd = nullptr);
 	long ncHitTest(MSG* wMsg);
 	void paintWinFrame(void);
-
-	int getStandardBorder(void) const;
-	int getStandardTitle(void) const;
-
+	
 	void ncMouseMove(int cx, int cy);
 	void ncMousePress(int cx, int cy);
 	void ncMouseRelease(int cx, int cy);
 	bool hasControls(int cx, int cy);
 
     bool isCaption(int cx, int cy) const;
+
+	void updateLayoutMargins(void);
 
 	bool mFrameRemoved;
     bool mCanMove;
@@ -133,6 +140,10 @@ private:
 	QStyle::SubControl mTitleBarHover;
 	QStyle::State mTitleBarState;
     Sizing mSizingMethod;
+
+	QMargins *mLayoutMargins;
+
+	int mGeometryFlags = CALCSIZE_DEFAULT;
 #endif
 };
 

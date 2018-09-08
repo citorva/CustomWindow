@@ -28,6 +28,7 @@
     #include <QStyleOption>
     #include <QMouseEvent>
     #include <QScreen>
+	#include <QLayout>
 #endif
 
 #ifdef __MINGW32__
@@ -154,12 +155,14 @@ void CustomWindow::setFrameRemoved(bool isRemoved) {
     mFrameRemoved = isRemoved;
     updateFrame();
     updateMargins();
+	updateLayoutMargins();
     setMouseTracking(isRemoved);
 }
 
 void CustomWindow::setExtraMargins(const QMargins& margins) {
     mMargins = margins;
     updateMargins();
+	updateLayoutMargins();
 }
 
 void CustomWindow::updateFrame(HWND hWnd) {
@@ -223,6 +226,7 @@ void CustomWindow::setBorderSize(int size) {
     if (mFrameRemoved) {
         updateFrame();
         updateMargins();
+		updateLayoutMargins();
     }
 }
 
@@ -235,6 +239,7 @@ void CustomWindow::setTitleBarSize(int size) {
     if (mFrameRemoved) {
         updateFrame();
         updateMargins();
+		updateLayoutMargins();
     }
 }
 
@@ -481,10 +486,22 @@ QMargins CustomWindow::extraMargins(void) const {
     return mMargins;
 }
 
-QRect CustomWindow::clientGeometry(const int calcFlags) const {
-    QMargins margins = (isAeroActivated() && (calcFlags & CALCSIZE_USE_MARGIN))?extraMargins():QMargins(0,0,0,0);
-    int border = (mFrameRemoved && (calcFlags & CALCSIZE_USE_BORDER))?borderSize():0;
-    int titlebar = (mFrameRemoved && (calcFlags & CALCSIZE_USE_TITLEBAR))?titleBarSize():0;
+void CustomWindow::setGeometryFlags(int flags) {
+	mGeometryFlags = flags;
+}
+
+int CustomWindow::geometryFlags(void) const {
+	return mGeometryFlags;
+}
+
+bool CustomWindow::isGeometryFlagsActivated(int flag) const {
+	return mFrameRemoved && (mGeometryFlags & flag);
+}
+
+QRect CustomWindow::clientGeometry(void) const {
+    QMargins margins = (isAeroActivated() && (mGeometryFlags & CALCSIZE_USE_MARGIN))?extraMargins():QMargins(0,0,0,0);
+    int border = (mFrameRemoved && (mGeometryFlags & CALCSIZE_USE_BORDER))?borderSize():0;
+    int titlebar = (mFrameRemoved && (mGeometryFlags & CALCSIZE_USE_TITLEBAR))?titleBarSize():0;
 
     QRect ret(margins.left()+border, margins.top()+border+titlebar, width()-margins.left()-margins.right()-2*border,
               height()-margins.top()-margins.bottom()-2*border-titlebar);
@@ -539,6 +556,14 @@ void CustomWindow::showSystemMenu(void)
     SetWindowLong(reinterpret_cast<HWND>(winId()), GWL_STYLE, GetWindowLong(reinterpret_cast<HWND>(winId()), GWL_STYLE) | WS_SYSMENU);
 }
 
+void CustomWindow::setSystemMenu(bool hide)
+{
+	if (hide)
+		hideSystemMenu();
+	else
+		showSystemMenu();
+}
+
 bool CustomWindow::haveSystemMenu(void) const
 {
     return GetWindowLong(reinterpret_cast<HWND>(winId()), GWL_STYLE) & WS_SYSMENU;
@@ -561,8 +586,9 @@ void CustomWindow::removeCaption(const QWidget* widget)
 bool CustomWindow::isCaption(int cx, int cy) const
 {
     for (const auto* widget : mCaptions) {
-        int minX = widget->pos().x();
-        int minY = widget->pos().y();
+		QPoint wpos = widget->mapToGlobal(QPoint(0, 0)) - pos();
+        int minX = wpos.x();
+        int minY = wpos.y();
         int maxX = minX + widget->size().width();
         int maxY = minY + widget->size().height();
 
@@ -570,6 +596,20 @@ bool CustomWindow::isCaption(int cx, int cy) const
             return true;
     }
     return false;
+}
+
+void CustomWindow::setLayout(QLayout *layout)
+{
+	mMargins = layout->contentsMargins();
+	QWidget::setLayout(layout);
+}
+
+void CustomWindow::updateLayoutMargins(void)
+{
+	layout()->setContentsMargins(clientGeometry().left() + mMargins.left(),
+								 clientGeometry().top() + mMargins.top(),
+								 (width()- clientGeometry().left()- clientGeometry().width()) + mMargins.right(),
+								 (height() - clientGeometry().top() - clientGeometry().height()) + mMargins.bottom());
 }
    
 #endif
