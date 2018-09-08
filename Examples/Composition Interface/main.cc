@@ -22,6 +22,7 @@
 #include <QSpinBox>
 #include <QWidget>
 #include <QLayout>
+#include <QSignalMapper>
 
 #include "CustomWindow.hh"
 
@@ -30,6 +31,14 @@ class MainWindow : public CustomWindow::CustomWindow
 public:
 	MainWindow() : CustomWindow::CustomWindow()
 	{
+		mMarginTopValue = 0;
+		mMargingBotValue = 0;
+		mMarginLeftValue = 0;
+		mMarginRightValue = 0;
+		mTitleBarValue = 0;
+		mBorderValue = 0;
+
+		setGeometryFlags(CALCSIZE_USE_BORDER | CALCSIZE_USE_TITLEBAR);
 
 		mMainLayout = new QVBoxLayout();
 
@@ -41,6 +50,8 @@ public:
 
 		mDragAreaBox = new QGroupBox("Drag window area");
 		mMainLayout->addWidget(mDragAreaBox);
+
+		mMainLayout->setContentsMargins(QMargins(8, 8, 8, 8));
 
 		setLayout(mMainLayout);
 
@@ -59,6 +70,9 @@ public:
 		mEnableComposition = new QCheckBox("Enable DWM Composition", this);
 		mThemeBoxLayout->addWidget(mEnableComposition);
 
+		mHideSystemButtons = new QCheckBox("Hide system menu (close/iconize/maximize button)");
+		mThemeBoxLayout->addWidget(mHideSystemButtons);
+
 		mThemeBox->setLayout(mThemeBoxLayout);
 
 		// DWM Composition Area
@@ -67,6 +81,14 @@ public:
 
 			mDWMCompositionLayout = new QVBoxLayout();
 
+			mCalcsizeTitlebar = new QCheckBox("Avoid titlebar", this);
+			mDWMCompositionLayout->addWidget(mCalcsizeTitlebar);
+
+			mCalcsizeBorders = new QCheckBox("Avoid borders", this);
+			mDWMCompositionLayout->addWidget(mCalcsizeBorders);
+
+			mCalcsizeMargins = new QCheckBox("Avoid margins", this);
+			mDWMCompositionLayout->addWidget(mCalcsizeMargins);
 
 			// Margins Area
 			mMarginLayout = new QHBoxLayout();
@@ -85,7 +107,7 @@ public:
 				mMarginTopLayout->addWidget(mMarginTopLabel);
 
 				mMarginTopSpinBox = new QSpinBox(this);
-				mMarginTopSpinBox->setMinimum(0);
+				mMarginTopSpinBox->setMinimum(-1);
 				mMarginTopSpinBox->setSuffix(" px");
 				mMarginTopLayout->addWidget(mMarginTopSpinBox);
 
@@ -99,7 +121,7 @@ public:
 				mMarginBotLayout->addWidget(mMarginBotLabel);
 
 				mMarginBotSpinBox = new QSpinBox(this);
-				mMarginBotSpinBox->setMinimum(0);
+				mMarginBotSpinBox->setMinimum(-1);
 				mMarginBotSpinBox->setSuffix(" px");
 				mMarginBotLayout->addWidget(mMarginBotSpinBox);
 
@@ -113,7 +135,7 @@ public:
 				mMarginLeftLayout->addWidget(mMarginLeftLabel);
 
 				mMarginLeftSpinBox = new QSpinBox(this);
-				mMarginLeftSpinBox->setMinimum(0);
+				mMarginLeftSpinBox->setMinimum(-1);
 				mMarginLeftSpinBox->setSuffix(" px");
 				mMarginLeftLayout->addWidget(mMarginLeftSpinBox);
 
@@ -127,7 +149,7 @@ public:
 				mMarginRightLayout->addWidget(mMarginRightLabel);
 
 				mMarginRightSpinBox = new QSpinBox(this);
-				mMarginRightSpinBox->setMinimum(0);
+				mMarginRightSpinBox->setMinimum(-1);
 				mMarginRightSpinBox->setSuffix(" px");
 				mMarginRightLayout->addWidget(mMarginRightSpinBox);
 
@@ -188,58 +210,54 @@ public:
 		connect(this, &CustomWindow::CustomWindow::compositionChanged, this, &MainWindow::onEvent);
 		connect(mEnableComposition, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mEnableMovableArea, &QCheckBox::released, this, &MainWindow::onEvent);
-		connect(mMarginTopSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::valueChanged);
-		connect(mMarginBotSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::valueChanged);
-		connect(mMarginLeftSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::valueChanged);
-		connect(mMarginRightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::valueChanged);
-		connect(mTitleBarSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::valueChanged);
-		connect(mBorderSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::valueChanged);
+		connect(mCalcsizeTitlebar, &QCheckBox::released, this, &MainWindow::onEvent);
+		connect(mCalcsizeBorders, &QCheckBox::released, this, &MainWindow::onEvent);
+		connect(mCalcsizeMargins, &QCheckBox::released, this, &MainWindow::onEvent);
+		connect(mMarginTopSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::marginTopSpinBoxValueChanged);
+		connect(mMarginBotSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::marginBotSpinBoxValueChanged);
+		connect(mMarginLeftSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::marginLeftSpinBoxValueChanged);
+		connect(mMarginRightSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::marginRightSpinBoxValueChanged);
+		connect(mTitleBarSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::titleBarSpinBoxValueChanged);
+		connect(mBorderSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, &MainWindow::borderSpinBoxValueChanged);
     }
 
     virtual ~MainWindow()
-    {
-		delete mThemeBox;
-		delete mDWMCompositionBox;
-		delete mDragAreaBox;
-		delete mDWMSignal;
-		delete mThemeSignal;
-		delete mEnableComposition;
-		delete mEnableMovableArea;
-		delete mMarginLabel;
-		delete mMarginTopLabel;
-		delete mMarginBotLabel;
-		delete mMarginLeftLabel;
-		delete mMarginRightLabel;
-		delete mTitleBarLabel;
-		delete mBorderLabel;
-		delete mMarginTopSpinBox;
-		delete mMarginBotSpinBox;
-		delete mMarginLeftSpinBox;
-		delete mMarginRightSpinBox;
-		delete mTitleBarSpinBox;
-		delete mBorderSpinBox;
-		delete mMovableArea;
-		delete mMarginLayout;
-		delete mMarginTopLayout;
-		delete mMarginBotLayout;
-		delete mMarginLeftLayout;
-		delete mMarginRightLayout;
-		delete mTitleBarBorderLayout;
-		delete mMainLayout;
-		delete mThemeBoxLayout;
-		delete mDWMCompositionLayout;
-		delete mDraggableAreaLayout;
-		delete mMarginGrid;
-    }
+    {}
 
 public slots:
 	void onEvent()
 	{
 		updateForm();
 	}
-	void valueChanged(int val)
+	
+	void marginTopSpinBoxValueChanged(int val)
 	{
-		Q_UNUSED(val);
+		mMarginTopValue = val;
+		updateForm();
+	}
+	void marginBotSpinBoxValueChanged(int val)
+	{
+		mMargingBotValue = val;
+		updateForm();
+	}
+	void marginLeftSpinBoxValueChanged(int val)
+	{
+		mMarginLeftValue = val;
+		updateForm();
+	}
+	void marginRightSpinBoxValueChanged(int val)
+	{
+		mMarginRightValue = val;
+		updateForm();
+	}
+	void titleBarSpinBoxValueChanged(int val)
+	{
+		mTitleBarValue = val;
+		updateForm();
+	}
+	void borderSpinBoxValueChanged(int val)
+	{
+		mBorderValue = val;
 		updateForm();
 	}
 
@@ -258,19 +276,36 @@ private:
 		mTitleBarSpinBox->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
 		mBorderSpinBox->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
 
+		mCalcsizeTitlebar->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
+		mCalcsizeBorders->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
+		mCalcsizeMargins->setEnabled(mThemeSignal->isChecked());
 		mEnableMovableArea->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
+
+		int flags = 0;
+
+		if (mCalcsizeTitlebar->isChecked())
+			flags |= CALCSIZE_USE_TITLEBAR;
+		if (mCalcsizeBorders->isChecked())
+			flags |= CALCSIZE_USE_BORDER;
+		if (mCalcsizeMargins->isChecked())
+			flags |= CALCSIZE_USE_MARGIN;
+
+		setGeometryFlags(flags);
 
 		setFrameRemoved(mEnableComposition->isChecked());
 
-		OutputDebugString(std::to_string(mTitleBarSpinBox->minimum()).c_str());
-		setExtraMargins(QMargins(mMarginLeftSpinBox->value(), mMarginTopSpinBox->value(), mMarginRightSpinBox->value(), mMarginBotSpinBox->value()));
-		setTitleBarSize(mTitleBarSpinBox->value());
-		setBorderSize(mBorderSpinBox->value());
+		setSystemMenu(mHideSystemButtons->isChecked());
+
+		setExtraMargins(QMargins(mMarginLeftValue, mMarginTopValue, mMarginRightValue, mMargingBotValue));
+		setTitleBarSize(mTitleBarValue);
+		setBorderSize(mBorderValue);
 
 		if (mEnableMovableArea->isChecked())
 			declareCaption(mMovableArea);
 		else
 			removeCaption(mMovableArea);
+
+		repaint();
 	}
 
 	QGroupBox *mThemeBox,
@@ -280,7 +315,11 @@ private:
 	QCheckBox *mDWMSignal,
 			  *mThemeSignal,
 			  *mEnableComposition,
-			  *mEnableMovableArea;
+			  *mEnableMovableArea,
+			  *mHideSystemButtons,
+			  *mCalcsizeTitlebar,
+			  *mCalcsizeBorders,
+			  *mCalcsizeMargins;
 
 	QLabel	  *mMarginLabel,
 			  *mMarginTopLabel,
@@ -312,6 +351,15 @@ private:
 				*mDraggableAreaLayout;
 
 	QGridLayout *mMarginGrid;
+
+	QSignalMapper *mSignalMapper;
+
+	int mMarginTopValue,
+		mMargingBotValue,
+		mMarginLeftValue,
+		mMarginRightValue,
+		mTitleBarValue,
+		mBorderValue;
 };
 
 int main(int argc, char** argv) {
