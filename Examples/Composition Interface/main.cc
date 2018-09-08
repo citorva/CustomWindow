@@ -210,6 +210,7 @@ public:
 		connect(this, &CustomWindow::CustomWindow::compositionChanged, this, &MainWindow::onEvent);
 		connect(mEnableComposition, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mEnableMovableArea, &QCheckBox::released, this, &MainWindow::onEvent);
+		connect(mHideSystemButtons, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mCalcsizeTitlebar, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mCalcsizeBorders, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mCalcsizeMargins, &QCheckBox::released, this, &MainWindow::onEvent);
@@ -260,7 +261,6 @@ public slots:
 		mBorderValue = val;
 		updateForm();
 	}
-
 private:
 	void updateForm(void)
 	{
