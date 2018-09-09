@@ -141,7 +141,7 @@ private:
 	QStyle::State mTitleBarState;
     Sizing mSizingMethod;
 
-	QMargins *mLayoutMargins;
+	QMargins mLayoutMargins;
 
 	int mGeometryFlags = CALCSIZE_DEFAULT;
 #endif

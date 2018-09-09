@@ -264,7 +264,8 @@ void CustomWindow::paintEvent(QPaintEvent*) {
             r.setHeight(height() - mMargins.top() - mMargins.bottom());
         }
 
-        p.drawRect(r);
+		if (mMargins.top() != -1 || (mFrameRemoved && (borderSize() != 0 || titleBarSize() != 0)))
+			p.drawRect(r);
     } else {
         if (mFrameRemoved) {
             paintWinFrame();
@@ -600,16 +601,16 @@ bool CustomWindow::isCaption(int cx, int cy) const
 
 void CustomWindow::setLayout(QLayout *layout)
 {
-	mMargins = layout->contentsMargins();
+	mLayoutMargins = layout->contentsMargins();
 	QWidget::setLayout(layout);
 }
 
 void CustomWindow::updateLayoutMargins(void)
 {
-	layout()->setContentsMargins(clientGeometry().left() + mMargins.left(),
-								 clientGeometry().top() + mMargins.top(),
-								 (width()- clientGeometry().left()- clientGeometry().width()) + mMargins.right(),
-								 (height() - clientGeometry().top() - clientGeometry().height()) + mMargins.bottom());
+	layout()->setContentsMargins(clientGeometry().left() + mLayoutMargins.left(),
+								 clientGeometry().top() + mLayoutMargins.top(),
+								 (width()- clientGeometry().left()- clientGeometry().width()) + mLayoutMargins.right(),
+								 (height() - clientGeometry().top() - clientGeometry().height()) + mLayoutMargins.bottom());
 }
    
 #endif
