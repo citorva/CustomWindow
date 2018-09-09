@@ -107,7 +107,6 @@ public:
 				mMarginTopLayout->addWidget(mMarginTopLabel);
 
 				mMarginTopSpinBox = new QSpinBox(this);
-				mMarginTopSpinBox->setMinimum(-1);
 				mMarginTopSpinBox->setSuffix(" px");
 				mMarginTopLayout->addWidget(mMarginTopSpinBox);
 
@@ -121,7 +120,6 @@ public:
 				mMarginBotLayout->addWidget(mMarginBotLabel);
 
 				mMarginBotSpinBox = new QSpinBox(this);
-				mMarginBotSpinBox->setMinimum(-1);
 				mMarginBotSpinBox->setSuffix(" px");
 				mMarginBotLayout->addWidget(mMarginBotSpinBox);
 
@@ -135,7 +133,6 @@ public:
 				mMarginLeftLayout->addWidget(mMarginLeftLabel);
 
 				mMarginLeftSpinBox = new QSpinBox(this);
-				mMarginLeftSpinBox->setMinimum(-1);
 				mMarginLeftSpinBox->setSuffix(" px");
 				mMarginLeftLayout->addWidget(mMarginLeftSpinBox);
 
@@ -149,7 +146,6 @@ public:
 				mMarginRightLayout->addWidget(mMarginRightLabel);
 
 				mMarginRightSpinBox = new QSpinBox(this);
-				mMarginRightSpinBox->setMinimum(-1);
 				mMarginRightSpinBox->setSuffix(" px");
 				mMarginRightLayout->addWidget(mMarginRightSpinBox);
 
@@ -275,6 +271,21 @@ private:
 		mMarginRightSpinBox->setEnabled(mDWMSignal->isChecked());
 		mTitleBarSpinBox->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
 		mBorderSpinBox->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
+
+		if (mEnableComposition->isChecked() && mThemeSignal->isChecked())
+		{
+			mMarginTopSpinBox->setMinimum(-mBorderValue-mTitleBarValue);
+			mMarginBotSpinBox->setMinimum(-mBorderValue);
+			mMarginLeftSpinBox->setMinimum(-mBorderValue);
+			mMarginRightSpinBox->setMinimum(-mBorderValue);
+		}
+		else
+		{
+			mMarginTopSpinBox->setMinimum(-1);
+			mMarginBotSpinBox->setMinimum(-1);
+			mMarginLeftSpinBox->setMinimum(-1);
+			mMarginRightSpinBox->setMinimum(-1);
+		}
 
 		mCalcsizeTitlebar->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
 		mCalcsizeBorders->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
