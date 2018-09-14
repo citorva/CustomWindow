@@ -202,9 +202,9 @@ long CustomWindow::ncHitTest(MSG* wMsg) {
     RECT rcFrame = { 0 };
     AdjustWindowRectEx(&rcFrame, WS_OVERLAPPEDWINDOW & ~WS_CAPTION, FALSE, NULL);
 
-    if (cur.y() > rcWin.top && cur.y() <= rcWin.top + borderSize())
+    if (cur.y() >= rcWin.top && cur.y() <= rcWin.top + borderSize())
         yPos = 0;
-    else if (cur.y() > rcWin.top + borderSize() && cur.y() <= rcWin.top + borderSize() + titleBarSize())
+    else if (cur.y() >= rcWin.top + borderSize() && cur.y() <= rcWin.top + borderSize() + titleBarSize())
         yPos = 1;
     else if (cur.y() >= rcWin.bottom - borderSize() && cur.y() < rcWin.bottom)
         yPos = 3;
