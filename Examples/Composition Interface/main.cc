@@ -23,6 +23,7 @@
 #include <QWidget>
 #include <QLayout>
 #include <QSignalMapper>
+#include <QStyleFactory>
 
 #include "CustomWindow.hh"
 
@@ -375,6 +376,8 @@ private:
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
+
+	app.setStyle(QStyleFactory::create("windowsvista"));
 
     MainWindow *w = new MainWindow();
 
