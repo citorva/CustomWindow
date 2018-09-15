@@ -30,11 +30,13 @@
     #include <Uxtheme.h>
     #include <dwmapi.h>
     #include <vector>
-#endif
 
 #if (QT_VERSION == QT_VERSION_CHECK(5, 11, 1))
 #error Qt bug for version 5.11.1. See https://bugreports.qt.io/browse/QTBUG-69074?jql=project%20%3D%20QTBUG%20AND%20text%20~%20nativeEvent%20AND%20affectedVersion%20%3D%205.11.1 for more information
 #endif
+
+#endif
+
 
 #define CALCSIZE_USE_BORDER     0x0001
 #define CALCSIZE_USE_MARGIN     0x0002
@@ -62,47 +64,70 @@ class CustomWindow : public QWidget {
 
 public:
     CustomWindow(QWidget* parent = nullptr, Qt::WindowFlags flags = Qt::Window);
+	virtual ~CustomWindow();
 
 #ifdef Q_OS_WIN
+	// System menu functions (For hid or show window buttons)
     void hideSystemMenu(void);
     void showSystemMenu(void);
 	void setSystemMenu(bool hide = false);
 	bool haveSystemMenu(void) const;
+
+
 	bool isGeometryFlagsActivated(int flag) const;
 
-	// Write
+	// Access to DWM composition for the window
 	void setFrameRemoved(bool isRemoved);
-	void setExtraMargins(const QMargins& margins);
-	void setBorderSize(int size);
-	void setTitleBarSize(int size);
-	void setGeometryFlags(int flags);
-
-	// Read
 	bool isFrameRemoved(void) const;
+	
+	// Access to Extra margin parameter
+	void setExtraMargins(const QMargins& margins);
 	QMargins extraMargins(void) const;
-    QRect clientGeometry(void) const;
-	int borderSize(void) const;
-    int titleBarSize(void) const;
-	int geometryFlags(void) const;
 
-    // Sizing
+	// Access to border size (need to have DWM composition enabled)
+	void setBorderSize(int size);
+	int borderSize(void) const;
+
+	// Access to title bar size (need to have DWM composition enabled)
+	int titleBarSize(void) const;
+	void setTitleBarSize(int size);
+
+	// Parameters for geometry calculator (prevent or not title bar, border or margins)
+	void setGeometryFlags(int flags);
+	int geometryFlags(void) const;
+	QRect clientGeometry(void) const;
+	QRect clientGeometry(int flags) const;
+
+
+    // Overload size manager members (for calculate window size with or without borders)
     void setSizing(Sizing method);
     void resize(int w, int h, Sizing method = defaultSizing);
     void resize(const QSize &size, Sizing method = defaultSizing);
     QSize size(Sizing method = defaultSizing) const;
     Sizing sizing(void) const;
 
-	// Static
+	// Check if we can enable window composition (aero is required for extra margins and theme is required for DWM compositon)
 	static bool isAeroActivated(void);
 	static bool isThemeActivated(void);
 
+	// Declare object that will be used as caption (note: any object over or childre of this object will be considered as caption)
     void declareCaption(const QWidget* widget);
 	void removeCaption(const QWidget* widget);
 
+	// Overload layout system for apply geometry calculator to layout form
 	void setLayout(QLayout* layout);
 
+	// Enable background blur effect (only in windows 8.1 and 10)
+	void enableTransluentBackground(qreal opacity = 0.5);
+	void disableTransluentBackground(void);
+	bool hasTransluentBackground(void) const;
+	qreal transluentBackgroundOpacity(void) const;
+
 signals:
+	// Signal emitted if theme parameter in windows is changed
 	void themeChanged(void);
+
+	// Signal emitted if application enable or disable composition (from setFrameRemoved)
 	void compositionChanged(void);
 
 protected:
@@ -127,9 +152,11 @@ private:
 
 	void updateLayoutMargins(void);
 
-	bool mFrameRemoved;
-    bool mCanMove;
+	void EnableWindowBlur(void);
+	void DisableWindowBlur(void);
+
 	QMargins mMargins;
+	QMargins mLayoutMargins;
 
     POINT mStartPos;
 	int mBorderSize;
@@ -140,10 +167,12 @@ private:
 	QStyle::SubControl mTitleBarHover;
 	QStyle::State mTitleBarState;
     Sizing mSizingMethod;
-
-	QMargins mLayoutMargins;
-
 	int mGeometryFlags = CALCSIZE_DEFAULT;
+	bool mFrameRemoved;
+	bool mCanMove;
+	bool mTransluentWindow;
+	qreal mBlurBehindOpacity;
+	
 #endif
 };
 

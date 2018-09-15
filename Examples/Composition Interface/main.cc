@@ -74,6 +74,9 @@ public:
 		mHideSystemButtons = new QCheckBox("Hide system menu (close/iconize/maximize button)");
 		mThemeBoxLayout->addWidget(mHideSystemButtons);
 
+		mSetWindowBlur = new QCheckBox("Set window background blur");
+		mThemeBoxLayout->addWidget(mSetWindowBlur);
+
 		mThemeBox->setLayout(mThemeBoxLayout);
 
 		// DWM Composition Area
@@ -208,6 +211,7 @@ public:
 		connect(mEnableComposition, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mEnableMovableArea, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mHideSystemButtons, &QCheckBox::released, this, &MainWindow::onEvent);
+		connect(mSetWindowBlur, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mCalcsizeTitlebar, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mCalcsizeBorders, &QCheckBox::released, this, &MainWindow::onEvent);
 		connect(mCalcsizeMargins, &QCheckBox::released, this, &MainWindow::onEvent);
@@ -273,6 +277,11 @@ private:
 		mTitleBarSpinBox->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
 		mBorderSpinBox->setEnabled(mEnableComposition->isChecked() && mThemeSignal->isChecked());
 
+		if (mSetWindowBlur->isChecked())
+			enableTransluentBackground();
+		else
+			disableTransluentBackground();
+
 		if (mEnableComposition->isChecked() && mThemeSignal->isChecked())
 		{
 			mMarginTopSpinBox->setMinimum(-mBorderValue-mTitleBarValue);
@@ -331,7 +340,8 @@ private:
 			  *mHideSystemButtons,
 			  *mCalcsizeTitlebar,
 			  *mCalcsizeBorders,
-			  *mCalcsizeMargins;
+			  *mCalcsizeMargins,
+			  *mSetWindowBlur;
 
 	QLabel	  *mMarginLabel,
 			  *mMarginTopLabel,
