@@ -103,8 +103,9 @@ void CustomWindow::declareCaption(const QWidget* widget)
 	mCaptions.push_back(widget);
 }
 
-void CustomWindow::enableTransluentBackground(qreal opacity)
+void CustomWindow::enableTransluentBackground(QColor color, qreal opacity)
 {
+	mBackgroundColor = color;
 	mBlurBehindOpacity = opacity;
 	mTransluentWindow = true;
 	EnableWindowBlur();
@@ -403,10 +404,7 @@ void CustomWindow::paintEvent(QPaintEvent*) {
 		{
 			QPainter p(this);
 			QRect r;
-
-			p.setBrush(palette().window());
-			p.setPen(Qt::NoPen);
-
+			
 			if (mFrameRemoved) {
 				r.setLeft(borderSize() + mMargins.left());
 				r.setWidth(width() - (2 * borderSize() + mMargins.left() + mMargins.right()));
@@ -421,13 +419,18 @@ void CustomWindow::paintEvent(QPaintEvent*) {
 				r.setHeight(height() - mMargins.top() - mMargins.bottom());
 			}
 
-			if (mTransluentWindow) {
-				if (mBlurBehindOpacity > 1.0) mBlurBehindOpacity = 1.0;
-				p.setOpacity(mBlurBehindOpacity);
-			}
-
 			if (mMargins.top() != -1 || (mFrameRemoved && (borderSize() != 0 || titleBarSize() != 0)))
-				p.drawRect(r);
+			{
+				if (mTransluentWindow) {
+					if (mBlurBehindOpacity > 1.0) mBlurBehindOpacity = 1.0;
+					p.setOpacity(mBlurBehindOpacity);
+					p.fillRect(r, mBackgroundColor);
+				}
+				else {
+					p.setBrush(palette().window());
+					p.setPen(Qt::NoPen);
+				}
+			}
 		}
 	}
 	else {
@@ -636,6 +639,8 @@ void CustomWindow::updateFrame(HWND hWnd) {
 
 void CustomWindow::updateLayoutMargins(void)
 {
+	if (layout() == 0)
+		return;
 	layout()->setContentsMargins(clientGeometry().left() + mLayoutMargins.left(),
 		clientGeometry().top() + mLayoutMargins.top(),
 		(width() - clientGeometry().left() - clientGeometry().width()) + mLayoutMargins.right(),
@@ -724,6 +729,14 @@ void CustomWindow::DisableWindowBlur(void)
 		}
 		FreeLibrary(hModule);
 	}
+}
+
+void CustomWindow::setResizable(bool resizable)
+{
+	if (!resizable)
+		SetWindowLong(reinterpret_cast<HWND>(winId()), GWL_STYLE, GetWindowLong(reinterpret_cast<HWND>(winId()), GWL_STYLE) | WS_THICKFRAME | WS_OVERLAPPED);
+	else
+		SetWindowLong(reinterpret_cast<HWND>(winId()), GWL_STYLE, GetWindowLong(reinterpret_cast<HWND>(winId()), GWL_STYLE) & ~(WS_THICKFRAME | WS_OVERLAPPED));
 }
 
 #endif

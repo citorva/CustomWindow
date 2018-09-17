@@ -106,6 +106,8 @@ public:
     QSize size(Sizing method = defaultSizing) const;
     Sizing sizing(void) const;
 
+	void setResizable(bool resizable);
+
 	// Check if we can enable window composition (aero is required for extra margins and theme is required for DWM compositon)
 	static bool isAeroActivated(void);
 	static bool isThemeActivated(void);
@@ -118,7 +120,7 @@ public:
 	void setLayout(QLayout* layout);
 
 	// Enable background blur effect (only in windows 8.1 and 10)
-	void enableTransluentBackground(qreal opacity = 0.5);
+	void enableTransluentBackground(QColor color, qreal opacity = 0.5);
 	void disableTransluentBackground(void);
 	bool hasTransluentBackground(void) const;
 	qreal transluentBackgroundOpacity(void) const;
@@ -172,6 +174,8 @@ private:
 	bool mCanMove;
 	bool mTransluentWindow;
 	qreal mBlurBehindOpacity;
+
+	QColor mBackgroundColor;
 	
 #endif
 };

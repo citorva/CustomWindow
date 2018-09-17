@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-set(PROJECT_NAME CustomWindow-composition-example)
+set(PROJECT_NAME CustomWindow-loading-banner)
 project(${PROJECT_NAME})
 
 include_directories(${CMAKE_SOURCE_DIR})
@@ -18,6 +18,8 @@ set(
     ../../CustomWindow/CustomWindow.cc
     ../../CustomWindow/CustomWindow.hh
 )
+
+set(QRC_FILES data.qrc)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)

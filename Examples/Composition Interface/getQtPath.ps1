@@ -25,6 +25,6 @@ $letters | ForEach-Object {
                 }
              }
         }
-        echo "$($qtpath)\$($major).$($minor).$($rev)\$($compiler)"
+        echo "$($qtpath)\$($major).$($minor).$($rev)\$($compiler)\"
     }
 }
